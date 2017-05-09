@@ -18,12 +18,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        play = (Button)findViewById(R.id.play);
+        mediaPlayer = MediaPlayer.create(this, R.raw.the_other_guys_well_sung_ep_04_desperado);
+
+        play = (Button) findViewById(R.id.play);
         play.setText(R.string.play_button);
 
-        play.setOnClickListener(new View.OnClickListener(){
+        pause = (Button) findViewById(R.id.pause);
+        pause.setText(R.string.pause_button);
+
+        play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
                 Toast.makeText(getApplicationContext(),
                         "Playing song", Toast.LENGTH_SHORT).show();
                 mediaPlayer.start();
@@ -32,12 +37,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        pause = (Button)findViewById(R.id.pause);
-        pause.setText(R.string.pause_button);
-
-        pause.setOnClickListener(new  View.OnClickListener(){
+        pause.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 Toast.makeText(getApplicationContext(),
                         "Pausing song", Toast.LENGTH_SHORT).show();
                 mediaPlayer.pause();
@@ -45,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
                 play.setEnabled(true);
             }
         });
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.the_other_guys_well_sung_ep_04_desperado);
-
+        
     }
 }
