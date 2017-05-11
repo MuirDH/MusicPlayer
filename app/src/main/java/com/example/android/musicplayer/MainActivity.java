@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
                                     AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
                         // Pause playback because your Audio Focus was
                         // temporarily stolen, but will be back soon.
-                        mediaPlayer.pause();
+                       mediaPlayer.pause();
                         mediaPlayer.seekTo(0);
                     } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
                         // Stop playback, because you lost the Audio Focus.
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                     } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                         // Resume playback, because you hold the Audio Focus
                         // again!
-                        mediaPlayer.start();
+                        performOnPlay();
                     }
                 }
             };
