@@ -1,8 +1,10 @@
 package com.example.android.musicplayer;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,15 +15,48 @@ public class MainActivity extends AppCompatActivity {
     private Button play;
     private Button pause;
     private MediaPlayer mediaPlayer;
+    private AudioManager audioManager;
+
+    private AudioManager.OnAudioFocusChangeListener onAudioFocusChangeListener =
+            new AudioManager.OnAudioFocusChangeListener() {
+                @Override
+                public void onAudioFocusChange(int focusChange) {
+                    if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
+                            focusChange ==
+                                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                        // Pause playback because your Audio Focus was
+                        // temporarily stolen, but will be back soon.
+                        mediaPlayer.pause();
+                        mediaPlayer.seekTo(0);
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                        // Stop playback, because you lost the Audio Focus.
+                        // Remember to unregister your controls/buttons here.
+                        releaseMediaPlayer();
+                    } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                        // Resume playback, because you hold the Audio Focus
+                        // again!
+                        mediaPlayer.start();
+                    }
+                }
+            };
+
+    private MediaPlayer.OnCompletionListener completionListener =
+            new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    performOnEnd();
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        releaseMediaPlayer();
+        // Create and setup the {@link AudioManager} to request audio focus
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.the_other_guys_well_sung_ep_04_desperado);
+        releaseMediaPlayer();
 
         play = (Button) findViewById(R.id.play);
         play.setText(R.string.play_button);
@@ -40,13 +75,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 performOnPause();
-            }
-        });
-
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                performOnEnd();
             }
         });
 
@@ -71,9 +99,19 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(getApplicationContext(),
                 "Playing song", Toast.LENGTH_SHORT).show();
-        mediaPlayer.start();
-        pause.setEnabled(true);
-        play.setEnabled(false);
+
+        int result = audioManager.requestAudioFocus(onAudioFocusChangeListener, AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            //We have audio focus now
+
+            mediaPlayer = MediaPlayer.create(this, R.raw.the_other_guys_well_sung_ep_04_desperado);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(completionListener);
+            pause.setEnabled(true);
+            play.setEnabled(false);
+        }
+
     }
 
     private void performOnEnd() {
@@ -99,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
             // setting the media player to null is an easy way to tell that the media player
             // is not configured to play an audio file at the moment.
             mediaPlayer = null;
+
+            audioManager.abandonAudioFocus(onAudioFocusChangeListener);
 
             Log.v("MainActivity", "MediaPlayer has been released");
         }
