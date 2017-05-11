@@ -52,6 +52,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        releaseMediaPlayer();
+    }
+
     private void performOnPause() {
 
         Toast.makeText(getApplicationContext(),
