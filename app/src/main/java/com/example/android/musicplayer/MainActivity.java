@@ -29,24 +29,52 @@ public class MainActivity extends AppCompatActivity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(),
-                        "Playing song", Toast.LENGTH_SHORT).show();
-                mediaPlayer.start();
-                pause.setEnabled(true);
-                play.setEnabled(false);
+                performOnPlay();
             }
         });
 
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),
-                        "Pausing song", Toast.LENGTH_SHORT).show();
-                mediaPlayer.pause();
-                pause.setEnabled(false);
-                play.setEnabled(true);
+                performOnPause();
             }
         });
-        
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                performOnEnd();
+            }
+        });
+
     }
+
+    private void performOnPause() {
+        
+        Toast.makeText(getApplicationContext(),
+                "Pausing song", Toast.LENGTH_SHORT).show();
+        mediaPlayer.pause();
+        pause.setEnabled(false);
+        play.setEnabled(true);
+    }
+
+    private void performOnPlay() {
+
+        Toast.makeText(getApplicationContext(),
+                "Playing song", Toast.LENGTH_SHORT).show();
+        mediaPlayer.start();
+        pause.setEnabled(true);
+        play.setEnabled(false);
+    }
+
+
+    private void performOnEnd() {
+
+        Toast.makeText(getApplicationContext(),
+                "Song finished", Toast.LENGTH_SHORT).show();
+        pause.setEnabled(false);
+        play.setEnabled(true);
+    }
+
+
 }
